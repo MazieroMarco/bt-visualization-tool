@@ -1,7 +1,6 @@
-
 import * as THREE from "../../../libs/three.js/build/three.module.js";
-import { EventDispatcher } from "../../EventDispatcher.js";
-import { Utils } from "../../utils.js";
+import {EventDispatcher} from "../../EventDispatcher.js";
+import {Utils} from "../../utils.js";
 import {Line2} from "../../../libs/three.js/lines/Line2.js";
 import {LineGeometry} from "../../../libs/three.js/lines/LineGeometry.js";
 import {LineMaterial} from "../../../libs/three.js/lines/LineMaterial.js";
@@ -18,13 +17,11 @@ class ControlPoint{
 
 };
 
-
-
 export class CameraAnimation extends EventDispatcher{
 
 	constructor(viewer){
 		super();
-		
+
 		this.viewer = viewer;
 
 		this.selectedElement = null;
@@ -44,8 +41,13 @@ export class CameraAnimation extends EventDispatcher{
 		this.duration = 5;
 		this.t = 0;
 		// "centripetal", "chordal", "catmullrom"
-		this.curveType = "centripetal" 
-		this.visible = true;
+		this.curveType = "centripetal"
+
+		// "continuous, "steps"
+		this.animationTypesList = ["continuous", "steps"]
+		this.animationType = this.animationTypesList[0]
+
+		this.visible = true
 
 		this.createUpdateHook();
 		this.createPath();
@@ -112,7 +114,7 @@ export class CameraAnimation extends EventDispatcher{
 			this.node.visible = this.visible;
 
 			for(const cp of this.controlPoints){
-				
+
 				{ // position
 					const projected = cp.position.clone().project(camera);
 
@@ -237,11 +239,11 @@ export class CameraAnimation extends EventDispatcher{
 		{ // position
 			const geometry = new LineGeometry();
 
-			let material = new LineMaterial({ 
-				color: 0x00ff00, 
-				dashSize: 5, 
+			let material = new LineMaterial({
+				color: 0x00ff00,
+				dashSize: 5,
 				gapSize: 2,
-				linewidth: 2, 
+				linewidth: 2,
 				resolution:  new THREE.Vector2(1000, 1000),
 			});
 
@@ -254,11 +256,11 @@ export class CameraAnimation extends EventDispatcher{
 		{ // target
 			const geometry = new LineGeometry();
 
-			let material = new LineMaterial({ 
-				color: 0x0000ff, 
-				dashSize: 5, 
+			let material = new LineMaterial({
+				color: 0x0000ff,
+				dashSize: 5,
 				gapSize: 2,
-				linewidth: 2, 
+				linewidth: 2,
 				resolution:  new THREE.Vector2(1000, 1000),
 			});
 
@@ -305,15 +307,15 @@ export class CameraAnimation extends EventDispatcher{
 		geometry.verticesNeedUpdate = true;
 		geometry.computeBoundingSphere();
 
-		let material = new LineMaterial({ 
-			color: 0xff0000, 
-			linewidth: 2, 
+		let material = new LineMaterial({
+			color: 0xff0000,
+			linewidth: 2,
 			resolution:  new THREE.Vector2(1000, 1000),
 		});
 
 		const line = new Line2(geometry, material);
 		line.computeLineDistances();
-		
+
 		return line;
 	}
 
@@ -375,7 +377,7 @@ export class CameraAnimation extends EventDispatcher{
 	}
 
 	at(t){
-		
+
 		if(t > 1){
 			t = 1;
 		}else if(t < 0){
@@ -385,12 +387,10 @@ export class CameraAnimation extends EventDispatcher{
 		const camPos = this.cameraCurve.getPointAt(t);
 		const target = this.targetCurve.getPointAt(t);
 
-		const frame = {
+		return {
 			position: camPos,
 			target: target,
 		};
-
-		return frame;
 	}
 
 	set(t){
@@ -398,7 +398,7 @@ export class CameraAnimation extends EventDispatcher{
 	}
 
 	createHandle(vector){
-		
+
 		const svgns = "http://www.w3.org/2000/svg";
 		const svg = document.createElementNS(svgns, "svg");
 
@@ -490,15 +490,25 @@ export class CameraAnimation extends EventDispatcher{
 		return this.duration;
 	}
 
-	play(){
+	setAnimationType(type) {
+		// "continuous", "steps"
+		if (!this.animationTypesList.includes(type))
+			throw new Error("Animation of type " + type + "not found");
 
-		const tStart = performance.now();
+		this.animationType = type
+	}
+
+	play() {
 		const duration = this.duration;
+		const animationStep = (duration / this.controlPoints.length) / duration;
+		let currentStep = 0;
+		const timeCameraStatic = 500;
+		const tStart = performance.now();
 
 		const originalyVisible = this.visible;
 		this.setVisible(false);
 
-		const onUpdate = (delta) => {
+		const onUpdateContinuous = (delta) => {
 
 			let tNow = performance.now();
 			let elapsed = (tNow - tStart) / 1000;
@@ -515,15 +525,53 @@ export class CameraAnimation extends EventDispatcher{
 			if(t > 1){
 				this.setVisible(originalyVisible);
 
-				this.viewer.removeEventListener("update", onUpdate);
+				this.viewer.removeEventListener("update", onUpdateContinuous);
 			}
 
 		};
 
-		this.viewer.addEventListener("update", onUpdate);
+		const onUpdateSteps = (delta) => {
 
+			let tNow = performance.now();
+			let elapsed = (tNow - tStart) / 1000;
+			let t = elapsed / duration;
+
+			this.set(t);
+
+			// Only moves when the elapsed time passed the current step
+			if (t >= currentStep * animationStep && currentStep < this.controlPoints.length) {
+				const frame = this.controlPoints[currentStep];
+				Utils.moveTo(this.viewer.scene,
+					frame.position,
+					frame.target,
+					(duration * 1000 / this.controlPoints.length) - timeCameraStatic,
+					TWEEN.Easing.Cubic.InOut);
+				currentStep++;
+			}
+
+			if(t > 1){
+				this.setVisible(originalyVisible);
+				this.viewer.removeEventListener("update", onUpdateSteps);
+			}
+
+		};
+
+		switch (this.animationType) {
+			case "continuous":
+				this.viewer.addEventListener("update", onUpdateContinuous);
+				break;
+			case "steps":
+				this.viewer.addEventListener("update", onUpdateSteps);
+				break;
+			default:
+				this.viewer.addEventListener("update", onUpdateContinuous);
+				break;
+		}
 	}
 
+	import_control_points() {
+		// TODO
+	}
 }
 
 

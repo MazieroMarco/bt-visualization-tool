@@ -78,14 +78,7 @@
 		import * as THREE from "../libs/three.js/build/three.module.js";
 
 		const animation = new Potree.CameraAnimation(viewer);
-
-		// const positions = [
-		// 	[87.469, -140.021, 60.039],
-		// 	[87.469, -140.021, 60.039],
-		// 	[15.099, -18.974, 54.795],
-		// 	[15.099, -18.974, 54.795],
-		// 	[-68.104, 130.220, 51.959],
-		// ]
+		animation.setAnimationType("steps");
 
 		const targets = [
 			[15.31984998, -5.95230876, 0.47894648],
@@ -110,7 +103,7 @@
 			cp.position.set(...positions[i]);
 			cp.target.set(...targets[i]);
 		}
-		animation.setDuration(15)
+		animation.setDuration(35)
 
 		viewer.scene.addCameraAnimation(animation);
 
