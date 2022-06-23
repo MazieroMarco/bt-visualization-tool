@@ -107,9 +107,9 @@
 
 		viewer.scene.addCameraAnimation(animation);
 
-		for (let i = 0; i < values.length; i++) {
-			viewer.scene.addAnnotation(values[i], {
-				"title": "CLUSTER CENTER " + i,
+		for (let i = 0; i < targets.length; i++) {
+			viewer.scene.addAnnotation(targets[i], {
+				"title": "Cluster " + i,
 				"actions": []
 			});
 		}

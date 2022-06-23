@@ -46,10 +46,11 @@
 		"navigation_cube_control": "Navigation cube",
 		"remove_all_clipping_volumes": "Remove all clipping volumes",
 		"compass": "Compass",
-		"camera_animation": "Camera Animation"
+		"camera_animation": "Camera Animation",
+		"camera_path_upload": "Upload a camera path"
 	},
 	"appearance": {
-		"nb_max_pts": "Point budget", 
+		"nb_max_pts": "Point budget",
 		"point_size": "Point size",
 		"min_point_size": "Minimum size",
 		"point_opacity": "Opacity",
@@ -82,7 +83,7 @@
 	"annotations": {
 		"show3D": "show in 3D",
 		"showMap": "show on map"
-	}, 
+	},
 	"profile": {
 		"nb_points": "Number of Points",
 		"title": "Height profile",
