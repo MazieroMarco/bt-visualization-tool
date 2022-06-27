@@ -1472,10 +1472,14 @@ export class Sidebar{
 
 		// Camera path import button
 		let elPathUpload = $(`
-			<input type="file" id="path_file_input" accept="application/JSON" />
+			<div style="padding: 1em 0">
+				<label for="path_file_input">Upload a camera path (JSON)</label><br>
+				<input type="file" id="path_file_input" accept="application/JSON"/>
+			</div>
 		`);
+
 		elNavigation.append(elPathUpload);
-		elPathUpload.change( (e) => {
+		elPathUpload.find("input").change( (e) => {
 			// Gets the uploaded file
 			let file = elPathUpload.prop('files')[0];
 			console.log(file);
