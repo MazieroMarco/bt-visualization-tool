@@ -1472,12 +1472,39 @@ export class Sidebar{
 
 		// Camera path import button
 		let elPathUpload = $(`
-			 <button id="upload_path" type="button">Upload a camera path (JSON)</button> 
+			<input type="file" id="path_file_input" />
 		`);
 		elNavigation.append(elPathUpload);
-		elPathUpload.find("#upload_path").click( (e) => {
-			// TODO
-			console.log("NOT IMPLEMENTED YET")
+		elPathUpload.change( (e) => {
+			let file = elPathUpload.prop('files')[0];
+			let fileReader = new FileReader();
+			fileReader.onload = function () {
+				let parsedJSON = JSON.parse(fileReader.result);
+				console.log(parsedJSON);
+
+				// Creates the camera animation
+				const animation = new Potree.CameraAnimation(viewer);
+				animation.setAnimationType("steps")
+				const positions = parsedJSON.positions;
+				const targets = parsedJSON.targets;
+
+				for(let i = 0; i < positions.length; i++){
+					const cp = animation.createControlPoint();
+					cp.position.set(...positions[i]);
+					cp.target.set(...targets[i]);
+				}
+				animation.setDuration(7 * targets.length) // 7 seconds per target
+
+				for (let i = 0; i < targets.length; i++) {
+					viewer.scene.addAnnotation(targets[i], {
+						"title": "Cluster " + i,
+						"actions": []
+					});
+				}
+
+				viewer.scene.addCameraAnimation(animation);
+			}
+			fileReader.readAsText(file);
 		})
 
 

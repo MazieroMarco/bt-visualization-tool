@@ -532,9 +532,11 @@ export class CameraAnimation extends EventDispatcher{
 
 		const onUpdateSteps = (delta) => {
 
+			const camera = this.viewer.scene.getActiveCamera();
 			let tNow = performance.now();
 			let elapsed = (tNow - tStart) / 1000;
 			let t = elapsed / duration;
+			let angle = 0
 
 			this.set(t);
 
