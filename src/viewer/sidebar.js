@@ -1472,15 +1472,38 @@ export class Sidebar{
 
 		// Camera path import button
 		let elPathUpload = $(`
-			<input type="file" id="path_file_input" />
+			<input type="file" id="path_file_input" accept="application/JSON" />
 		`);
 		elNavigation.append(elPathUpload);
 		elPathUpload.change( (e) => {
+			// Gets the uploaded file
 			let file = elPathUpload.prop('files')[0];
+			console.log(file);
+
+			// Checks if file type is correct
+			if (file.type !== "application/json")
+				throw new Error("Type of given file is not JSON");
+
+			// Reads the file
 			let fileReader = new FileReader();
-			fileReader.onload = function () {
-				let parsedJSON = JSON.parse(fileReader.result);
-				console.log(parsedJSON);
+			fileReader.onload = () => {
+
+				// On upload, parses the json data
+				let parsedJSON;
+				try {
+					parsedJSON = JSON.parse(fileReader.result);
+					console.log(parsedJSON);
+				} catch {
+					alert("The JSON file could not be parsed. Please verify the syntax.");
+					return;
+				}
+
+				// Verifies the required fields are present
+				if (parsedJSON.positions === undefined || parsedJSON.targets === undefined) {
+					alert("Invalid JSON file. The file must have positions and targets fields");
+					return;
+				}
+
 
 				// Creates the camera animation
 				const animation = new Potree.CameraAnimation(viewer);
@@ -1495,12 +1518,13 @@ export class Sidebar{
 				}
 				animation.setDuration(7 * targets.length) // 7 seconds per target
 
-				for (let i = 0; i < targets.length; i++) {
+				// Displays the targets as annotations for debug
+				/*for (let i = 0; i < targets.length; i++) {
 					viewer.scene.addAnnotation(targets[i], {
 						"title": "Cluster " + i,
 						"actions": []
 					});
-				}
+				}*/
 
 				viewer.scene.addCameraAnimation(animation);
 			}
