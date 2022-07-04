@@ -1481,7 +1481,7 @@ export class Sidebar{
 		elNavigation.append(elPathUpload);
 		elPathUpload.find("input").change( (e) => {
 			// Gets the uploaded file
-			let file = elPathUpload.prop('files')[0];
+			let file = elPathUpload.find("input").prop('files')[0];
 			console.log(file);
 
 			// Checks if file type is correct
@@ -1496,7 +1496,6 @@ export class Sidebar{
 				let parsedJSON;
 				try {
 					parsedJSON = JSON.parse(fileReader.result);
-					console.log(parsedJSON);
 				} catch {
 					alert("The JSON file could not be parsed. Please verify the syntax.");
 					return;
@@ -1523,14 +1522,15 @@ export class Sidebar{
 				animation.setDuration(7 * targets.length) // 7 seconds per target
 
 				// Displays the targets as annotations for debug
-				/*for (let i = 0; i < targets.length; i++) {
-					viewer.scene.addAnnotation(targets[i], {
-						"title": "Cluster " + i,
-						"actions": []
-					});
-				}*/
+				//for (let i = 0; i < targets.length; i++) {
+				//	viewer.scene.addAnnotation(targets[i], {
+				//		"title": "Cluster " + i,
+				//		"actions": []
+				//	});
+				//}
 
 				viewer.scene.addCameraAnimation(animation);
+				animation.play()
 			}
 			fileReader.readAsText(file);
 		})

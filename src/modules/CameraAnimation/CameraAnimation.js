@@ -570,10 +570,6 @@ export class CameraAnimation extends EventDispatcher{
 				break;
 		}
 	}
-
-	import_control_points() {
-		// TODO
-	}
 }
 
 
