@@ -1522,19 +1522,18 @@ export class Sidebar{
 				animation.setDuration(7 * targets.length) // 7 seconds per target
 
 				// Displays the targets as annotations for debug
-				//for (let i = 0; i < targets.length; i++) {
-				//	viewer.scene.addAnnotation(targets[i], {
-				//		"title": "Cluster " + i,
-				//		"actions": []
-				//	});
-				//}
+				for (let i = 0; i < targets.length; i++) {
+					viewer.scene.addAnnotation(targets[i], {
+						"title": "Cluster " + i,
+						"actions": []
+					});
+				}
 
 				viewer.scene.addCameraAnimation(animation);
 				animation.play()
 			}
 			fileReader.readAsText(file);
 		})
-
 
 		// Projection
 		let elCameraProjection = $(`
