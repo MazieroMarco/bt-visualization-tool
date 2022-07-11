@@ -555,7 +555,6 @@ export class CameraAnimation extends EventDispatcher{
 				this.setVisible(originalyVisible);
 				this.viewer.removeEventListener("update", onUpdateSteps);
 			}
-
 		};
 
 		switch (this.animationType) {
