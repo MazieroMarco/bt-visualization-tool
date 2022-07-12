@@ -72,54 +72,5 @@
 		});
 
 	</script>
-
-	<script type="module">
-
-		import * as THREE from "../libs/three.js/build/three.module.js";
-
-		const animation = new Potree.CameraAnimation(viewer);
-
-		// const positions = [
-		// 	[87.469, -140.021, 60.039],
-		// 	[87.469, -140.021, 60.039],
-		// 	[15.099, -18.974, 54.795],
-		// 	[15.099, -18.974, 54.795],
-		// 	[-68.104, 130.220, 51.959],
-		// ]
-
-		const targets = [
-			[311467.525, 5169849.95, 588.361750],
-			[311652.228, 5169653.90, 508.630654],
-			[311805.346, 5169485.03, 534.168235],
-			[311451.203, 5169829.78, 572.018816],
-			[311298.813, 5170179.36, 622.586170]
-		];
-
-		let positions = JSON.parse(JSON.stringify(targets));
-		// positions = positions.sort(() => Math.random() - 0.5);
-		positions.map((element) => {
-			element[2] += Math.random() * 40;
-			element[0] += (Math.random() - 0.5) * 150;
-			element[1] += (Math.random() - 0.5) * 150;
-		});
-
-		for(let i = 0; i < positions.length; i++){
-			const cp = animation.createControlPoint();
-
-			cp.position.set(...positions[i]);
-			cp.target.set(...targets[i]);
-		}
-		animation.setDuration(15)
-
-		viewer.scene.addCameraAnimation(animation);
-
-		for (let i = 0; i < values.length; i++) {
-			viewer.scene.addAnnotation(values[i], {
-				"title": "CLUSTER CENTER " + i,
-				"actions": []
-			});
-		}
-
-	</script>
   </body>
 </html>

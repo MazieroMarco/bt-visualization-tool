@@ -72,48 +72,5 @@
 		});
 
 	</script>
-
-	<script type="module">
-
-		import * as THREE from "../libs/three.js/build/three.module.js";
-
-		const animation = new Potree.CameraAnimation(viewer);
-		animation.setAnimationType("steps");
-
-		const targets = [
-			[15.31984998, -5.95230876, 0.47894648],
-			[-72.4369059, -38.12071401, 17.86033682],
-			[47.67074756, 59.74812247, 22.86188822],
-			[86.54026556, 74.94633146, 22.74723633],
-			[-1.20896205, -157.1761226, 12.47474647],
-		];
-
-		let positions = JSON.parse(JSON.stringify(targets));
-
-		// positions = positions.sort(() => Math.random() - 0.5);
-		positions.map((element) => {
-			element[2] += Math.random() * 40;
-			element[0] += (Math.random() - 0.5) * 150;
-			element[1] += (Math.random() - 0.5) * 150;
-		});
-
-		for(let i = 0; i < positions.length; i++){
-			const cp = animation.createControlPoint();
-
-			cp.position.set(...positions[i]);
-			cp.target.set(...targets[i]);
-		}
-		animation.setDuration(35)
-
-		viewer.scene.addCameraAnimation(animation);
-
-		for (let i = 0; i < values.length; i++) {
-			viewer.scene.addAnnotation(values[i], {
-				"title": "CLUSTER CENTER " + i,
-				"actions": []
-			});
-		}
-
-	</script>
   </body>
 </html>
