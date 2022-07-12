@@ -20,15 +20,23 @@ export class CameraAnimationPanel{
 					</span>
 					
 					<span>
-						<selectgroup title="Animation type" id="animation_type_options" name="animationType">
+						<selectgroup id="animation_type_options" name="animationType">
 							<option id="animation_type_continuous" value="CONTINUOUS">Continuous</option>
 							<option id="animation_type_steps" value="STEPS">Steps</option>
 						</selectgroup>
 					</span>
-
+					
+					<span>
+						<selectgroup id="animation_loop_options" name="animationLoop">
+							<option id="animation_loop_on" value="on">ON</option>
+							<option id="animation_loop_off" value="off">OFF</option>
+						</selectgroup>
+					</span>
+					
 					<span>Time: </span><span id="lblTime"></span> <div id="sldTime"></div>
 
 					<input name="play" type="button" value="play"/>
+					<input name="stop" type="button" value="stop"/>
 				</span>
 			</div>
 		`);
@@ -36,6 +44,11 @@ export class CameraAnimationPanel{
 		const elPlay = this.elContent.find("input[name=play]");
 		elPlay.click( () => {
 			animation.play();
+		});
+
+		const elStop = this.elContent.find("input[name=stop]");
+		elStop.click( () => {
+			animation.stop();
 		});
 
 		const elSlider = this.elContent.find('#sldTime');
@@ -54,6 +67,16 @@ export class CameraAnimationPanel{
 		elAnimationType.mousedown( (e) => {
 			animation.setAnimationType(e.target.innerText.toLowerCase());
 		});
+
+		const elAnimationLoop = this.elContent.find(`selectgroup[name=animationLoop]`);
+		elAnimationLoop.selectgroup({title: "Looping animation"});
+		elAnimationLoop.mousedown( (e) => {
+			let loop = false;
+			if (e.target.innerText.toLowerCase() === 'on')
+				loop = true
+			animation.setAnimationLoop(loop);
+		});
+
 
 		let elDuration = this.elContent.find(`input[name=spnDuration]`);
 		elDuration.spinner({

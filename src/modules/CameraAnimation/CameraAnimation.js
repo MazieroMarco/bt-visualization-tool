@@ -41,13 +41,15 @@ export class CameraAnimation extends EventDispatcher{
 		this.duration = 5;
 		this.t = 0;
 		// "centripetal", "chordal", "catmullrom"
-		this.curveType = "centripetal"
+		this.curveType = "centripetal";
 
 		// "continuous, "steps"
-		this.animationTypesList = ["continuous", "steps"]
-		this.animationType = this.animationTypesList[0]
+		this.animationTypesList = ["continuous", "steps"];
+		this.animationType = this.animationTypesList[0];
+		this.loop = false;
+		this.stopRequested = false;
 
-		this.visible = true
+		this.visible = true;
 
 		this.createUpdateHook();
 		this.createPath();
@@ -322,7 +324,7 @@ export class CameraAnimation extends EventDispatcher{
 	updatePath(){
 
 		{ // positions
-			const positions = this.controlPoints.map(cp => cp.position);
+			let positions = this.controlPoints.map(cp => cp.position);
 			const first = positions[0];
 
 			const curve = new THREE.CatmullRomCurve3(positions);
@@ -498,17 +500,35 @@ export class CameraAnimation extends EventDispatcher{
 		this.animationType = type
 	}
 
+	setAnimationLoop(loop) {
+		if (loop !== false && loop !== true)
+			return;
+
+		this.loop = loop;
+	}
+
+	stop() {
+		this.stopRequested = true;
+		console.log("stopRequested set to :" + this.stopRequested);
+	}
+
 	play() {
 		const duration = this.duration;
-		const animationStep = (duration / this.controlPoints.length) / duration;
+		let animationStep = (duration / this.controlPoints.length) / duration;
 		let currentStep = 0;
 		const timeCameraStatic = 500;
-		const tStart = performance.now();
+		let tStart = performance.now();
 
 		const originalyVisible = this.visible;
 		this.setVisible(false);
 
 		const onUpdateContinuous = (delta) => {
+			if (this.stopRequested) {
+				this.setVisible(originalyVisible);
+				this.viewer.removeEventListener("update", onUpdateContinuous);
+				this.stopRequested = false;
+				return;
+			}
 
 			let tNow = performance.now();
 			let elapsed = (tNow - tStart) / 1000;
@@ -523,14 +543,23 @@ export class CameraAnimation extends EventDispatcher{
 
 
 			if(t > 1){
-				this.setVisible(originalyVisible);
-
-				this.viewer.removeEventListener("update", onUpdateContinuous);
+				if (this.loop === true) {
+					tStart = performance.now();
+				} else {
+					this.setVisible(originalyVisible);
+					this.viewer.removeEventListener("update", onUpdateContinuous);
+				}
 			}
 
 		};
 
 		const onUpdateSteps = (delta) => {
+			if (this.stopRequested) {
+				this.setVisible(originalyVisible);
+				this.viewer.removeEventListener("update", onUpdateSteps);
+				this.stopRequested = false;
+				return;
+			}
 
 			const camera = this.viewer.scene.getActiveCamera();
 			let tNow = performance.now();
@@ -552,8 +581,14 @@ export class CameraAnimation extends EventDispatcher{
 			}
 
 			if(t > 1){
-				this.setVisible(originalyVisible);
-				this.viewer.removeEventListener("update", onUpdateSteps);
+				if (this.loop === true) {
+					animationStep = (duration / this.controlPoints.length) / duration;
+					currentStep = 0;
+					tStart = performance.now();
+				} else {
+					this.setVisible(originalyVisible);
+					this.viewer.removeEventListener("update", onUpdateSteps);
+				}
 			}
 		};
 
