@@ -1482,11 +1482,12 @@ export class Sidebar{
 		elPathUpload.find("input").change( (e) => {
 			// Gets the uploaded file
 			let file = elPathUpload.find("input").prop('files')[0];
-			console.log(file);
 
 			// Checks if file type is correct
-			if (file.type !== "application/json")
-				throw new Error("Type of given file is not JSON");
+			if (file.type !== "application/json") {
+				viewer.postError("Type of given file is not JSON.");
+				return;
+			}
 
 			// Reads the file
 			let fileReader = new FileReader();
@@ -1497,13 +1498,13 @@ export class Sidebar{
 				try {
 					parsedJSON = JSON.parse(fileReader.result);
 				} catch {
-					alert("The JSON file could not be parsed. Please verify the syntax.");
+					viewer.postError("The JSON file could not be parsed. Please verify the syntax.");
 					return;
 				}
 
 				// Verifies the required fields are present
 				if (parsedJSON.positions === undefined || parsedJSON.targets === undefined) {
-					alert("Invalid JSON file. The file must have positions and targets fields");
+					viewer.postError("Invalid JSON file. The file must have positions and targets fields.");
 					return;
 				}
 
@@ -1530,7 +1531,8 @@ export class Sidebar{
 				}
 
 				viewer.scene.addCameraAnimation(animation);
-				animation.play()
+				viewer.postMessage("A new camera animation has been added !");
+				animation.play();
 			}
 			fileReader.readAsText(file);
 		})

@@ -1,5 +1,6 @@
 
 import {Utils} from "../../utils.js";
+import {CameraMode} from "../../defines";
 
 export class CameraAnimationPanel{
 	constructor(viewer, propertiesPanel, animation){
@@ -16,6 +17,13 @@ export class CameraAnimationPanel{
 					<span style="display:flex">
 						<span style="display:flex; align-items: center; padding-right: 10px">Duration: </span>
 						<input name="spnDuration" value="5.0" style="flex-grow: 1; width:100%">
+					</span>
+					
+					<span>
+						<selectgroup title="Animation type" id="animation_type_options" name="animationType">
+							<option id="animation_type_continuous" value="CONTINUOUS">Continuous</option>
+							<option id="animation_type_steps" value="STEPS">Steps</option>
+						</selectgroup>
 					</span>
 
 					<span>Time: </span><span id="lblTime"></span> <div id="sldTime"></div>
@@ -36,9 +44,15 @@ export class CameraAnimationPanel{
 			min: 0,
 			max: 1,
 			step: 0.001,
-			slide: (event, ui) => { 
+			slide: (event, ui) => {
 				animation.set(ui.value);
 			}
+		});
+
+		const elAnimationType = this.elContent.find(`selectgroup[name=animationType]`);
+		elAnimationType.selectgroup({title: "Animation type"});
+		elAnimationType.mousedown( (e) => {
+			animation.setAnimationType(e.target.innerText.toLowerCase());
 		});
 
 		let elDuration = this.elContent.find(`input[name=spnDuration]`);
@@ -148,7 +162,7 @@ export class CameraAnimationPanel{
 			addNewKeyframeItem(index);
 
 			for(const cp of animation.controlPoints){
-				
+
 				addKeyframeItem(index);
 				index++;
 				addNewKeyframeItem(index);
@@ -170,6 +184,6 @@ export class CameraAnimationPanel{
 	}
 
 	update(){
-		
+
 	}
 };

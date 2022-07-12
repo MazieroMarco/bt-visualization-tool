@@ -493,7 +493,7 @@ export class CameraAnimation extends EventDispatcher{
 	setAnimationType(type) {
 		// "continuous", "steps"
 		if (!this.animationTypesList.includes(type))
-			throw new Error("Animation of type " + type + "not found");
+			return
 
 		this.animationType = type
 	}
