@@ -1519,7 +1519,7 @@ export class Sidebar{
 					cp.position.set(...positions[i]);
 					cp.target.set(...targets[i]);
 				}
-				animation.setDuration(7 * targets.length) // 7 seconds per target
+				animation.setDuration(7 * targets.length)  // 7 seconds per target
 
 				// Displays the targets as annotations for debug
 				for (let i = 0; i < targets.length; i++) {
