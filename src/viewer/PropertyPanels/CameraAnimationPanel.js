@@ -28,8 +28,15 @@ export class CameraAnimationPanel{
 					
 					<span>
 						<selectgroup id="animation_loop_options" name="animationLoop">
-							<option id="animation_loop_on" value="on">ON</option>
-							<option id="animation_loop_off" value="off">OFF</option>
+							<option id="animation_loop_on" value="ON">ON</option>
+							<option id="animation_loop_off" value="OFF">OFF</option>
+						</selectgroup>
+					</span>
+					
+					<span>
+						<selectgroup id="animation_targets_options" name="animationTargets">
+							<option id="animation_targets_on" value="ON">ON</option>
+							<option id="animation_targets_off" value="OFF">OFF</option>
 						</selectgroup>
 					</span>
 					
@@ -67,16 +74,47 @@ export class CameraAnimationPanel{
 		elAnimationType.mousedown( (e) => {
 			animation.setAnimationType(e.target.innerText.toLowerCase());
 		});
+		elAnimationType.find(`input[value=${animation.animationType.toUpperCase()}]`).trigger("click");
 
 		const elAnimationLoop = this.elContent.find(`selectgroup[name=animationLoop]`);
 		elAnimationLoop.selectgroup({title: "Looping animation"});
 		elAnimationLoop.mousedown( (e) => {
 			let loop = false;
-			if (e.target.innerText.toLowerCase() === 'on')
+			if (e.target.innerText === 'ON')
 				loop = true
 			animation.setAnimationLoop(loop);
 		});
+		const loop = animation.loop ? 'ON' : 'OFF';
+		elAnimationLoop.find(`input[value=${loop}]`).trigger("click");
 
+		const elAnimationTargets = this.elContent.find(`selectgroup[name=animationTargets]`);
+		elAnimationTargets.selectgroup({title: "Show targets"});
+		elAnimationTargets.mousedown( (e) => {
+			if (e.target.innerText === 'ON') {
+				if (viewer.scene.getAnnotations().children
+					.find(annotation => animation.controlPoints
+						.map(cp => cp.target)
+						.find(t => t === annotation.position) !== undefined)
+					!== undefined)
+					return;
+
+				for (let i = 0; i < animation.controlPoints.length; i++) {
+					// Displays the targets as annotations
+					viewer.scene.addAnnotation(animation.controlPoints[i].target, {
+						"title": "Target " + i,
+						"actions": []
+					});
+				}
+			} else {
+				// Remove all targets annotations
+				for (let annotation of viewer.scene.getAnnotations().children) {
+					if (animation.controlPoints.map(cp => cp.target).find(t => t === annotation.position) !== undefined) {
+						viewer.scene.removeAnnotation(annotation);
+					}
+				}
+			}
+		});
+		elAnimationTargets.find(`input[value=OFF]`).trigger("click");
 
 		let elDuration = this.elContent.find(`input[name=spnDuration]`);
 		elDuration.spinner({

@@ -601,7 +601,6 @@ export class Sidebar{
 			annotation.addEventListener("annotation_changed", (e) => {
 				let annotationsRoot = $("#jstree_scene").jstree().get_json("annotations");
 				let jsonNode = annotationsRoot.children.find(child => child.data.uuid === annotation.uuid);
-
 				$.jstree.reference(jsonNode.id).rename_node(jsonNode.id, annotation.title);
 			});
 		};
@@ -704,10 +703,18 @@ export class Sidebar{
 			tree.jstree("delete_node", jsonNode.id);
 		};
 
+		let onAnnotationRemoved = (e) => {
+			let annotation = e.annotation;
+			let annotationsRoot = $("#jstree_scene").jstree().get_json("annotations");
+			let jsonNode = annotationsRoot.children.find(child => child.data.uuid === annotation.uuid);
+			tree.jstree("delete_node", jsonNode.id);
+		};
+
 		this.viewer.scene.addEventListener("measurement_removed", onMeasurementRemoved);
 		this.viewer.scene.addEventListener("volume_removed", onVolumeRemoved);
 		this.viewer.scene.addEventListener("polygon_clip_volume_removed", onPolygonClipVolumeRemoved);
 		this.viewer.scene.addEventListener("profile_removed", onProfileRemoved);
+		this.viewer.scene.addEventListener("annotation_removed", onAnnotationRemoved);
 
 		{
 			let annotationIcon = `${Potree.resourcePath}/icons/annotation.svg`;
@@ -1502,12 +1509,17 @@ export class Sidebar{
 					return;
 				}
 
-				// Verifies the required fields are present
-				if (parsedJSON.positions === undefined || parsedJSON.targets === undefined) {
-					viewer.postError("Invalid JSON file. The file must have positions and targets fields.");
+				// Verifies the required fields are present and are arrays
+				if (!Array.isArray(parsedJSON.positions) || !Array.isArray(parsedJSON.targets)) {
+					viewer.postError("Invalid JSON file. The file must have positions and targets arrays.");
 					return;
 				}
 
+				// Verifies the number of targets and positions
+				if (parsedJSON.positions.length !== parsedJSON.targets.length) {
+					viewer.postError("Invalid JSON file. Targets and positions arrays must have the same size.");
+					return;
+				}
 
 				// Creates the camera animation
 				const animation = new Potree.CameraAnimation(viewer);
@@ -1521,14 +1533,6 @@ export class Sidebar{
 					cp.target.set(...targets[i]);
 				}
 				animation.setDuration(7 * targets.length)  // 7 seconds per target
-
-				// Displays the targets as annotations for debug
-				for (let i = 0; i < targets.length; i++) {
-					viewer.scene.addAnnotation(targets[i], {
-						"title": "Cluster " + i,
-						"actions": []
-					});
-				}
 
 				viewer.scene.addCameraAnimation(animation);
 				viewer.postMessage("A new camera animation has been added !");

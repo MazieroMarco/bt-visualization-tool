@@ -509,7 +509,6 @@ export class CameraAnimation extends EventDispatcher{
 
 	stop() {
 		this.stopRequested = true;
-		console.log("stopRequested set to :" + this.stopRequested);
 	}
 
 	play() {
