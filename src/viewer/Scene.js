@@ -13,7 +13,7 @@ export class Scene extends EventDispatcher{
 		super();
 
 		this.annotations = new Annotation();
-		
+
 		this.scene = new THREE.Scene();
 		this.sceneBG = new THREE.Scene();
 		this.scenePointCloud = new THREE.Scene();
@@ -35,7 +35,7 @@ export class Scene extends EventDispatcher{
 		this.orientedImages = [];
 		this.images360 = [];
 		this.geopackages = [];
-		
+
 		this.fpControls = null;
 		this.orbitControls = null;
 		this.earthControls = null;
@@ -102,7 +102,7 @@ export class Scene extends EventDispatcher{
 
 		return height;
 	}
-	
+
 	getBoundingBox(pointclouds = this.pointclouds){
 		let box = new THREE.Box3();
 
@@ -254,7 +254,7 @@ export class Scene extends EventDispatcher{
 			"volume": volume
 		});
 	};
-	
+
 	removePolygonClipVolume(volume){
 		let index = this.polygonClipVolumes.indexOf(volume);
 		if (index > -1) {
@@ -266,7 +266,7 @@ export class Scene extends EventDispatcher{
 			});
 		}
 	};
-	
+
 	addMeasurement(measurement){
 		measurement.lengthUnit = this.lengthUnit;
 		measurement.lengthUnitDisplay = this.lengthUnitDisplay;
@@ -352,9 +352,9 @@ export class Scene extends EventDispatcher{
 
 		return null;
 	}
-	
+
 	initialize(){
-		
+
 		this.referenceFrame = new THREE.Object3D();
 		this.referenceFrame.matrixAutoUpdate = false;
 		this.scenePointCloud.add(this.referenceFrame);
@@ -366,12 +366,12 @@ export class Scene extends EventDispatcher{
 		//this.camera.rotation.y = -Math.PI / 4;
 		//this.camera.rotation.x = -Math.PI / 6;
 		this.cameraScreenSpace.lookAt(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1), new THREE.Vector3(0, 1, 0));
-		
+
 		this.directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
 		this.directionalLight.position.set( 10, 10, 10 );
 		this.directionalLight.lookAt( new THREE.Vector3(0, 0, 0));
 		this.scenePointCloud.add( this.directionalLight );
-		
+
 		let light = new THREE.AmbientLight( 0x555555 ); // soft white light
 		this.scenePointCloud.add( light );
 
@@ -414,8 +414,8 @@ export class Scene extends EventDispatcher{
 		// 	}
 		// }
 	}
-	
-	addAnnotation(position, args = {}){		
+
+	addAnnotation(position, args = {}){
 		if(position instanceof Array){
 			args.position = new THREE.Vector3().fromArray(position);
 		} else if (position.x != null) {
@@ -433,5 +433,11 @@ export class Scene extends EventDispatcher{
 
 	removeAnnotation(annotationToRemove) {
 		this.annotations.remove(annotationToRemove);
+
+		this.dispatchEvent({
+			'type': 'annotation_removed',
+			'scene': this,
+			'annotation': annotationToRemove
+		});
 	}
 };
