@@ -28,15 +28,15 @@ export class CameraAnimationPanel{
 					
 					<span>
 						<selectgroup id="animation_loop_options" name="animationLoop">
-							<option id="animation_loop_on" value="ON">ON</option>
 							<option id="animation_loop_off" value="OFF">OFF</option>
+							<option id="animation_loop_on" value="ON">ON</option>
 						</selectgroup>
 					</span>
 					
 					<span>
 						<selectgroup id="animation_targets_options" name="animationTargets">
-							<option id="animation_targets_on" value="ON">ON</option>
 							<option id="animation_targets_off" value="OFF">OFF</option>
+							<option id="animation_targets_on" value="ON">ON</option>
 						</selectgroup>
 					</span>
 					
